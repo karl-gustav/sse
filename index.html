@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>SSE</title>
+	<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  </head>
+  <body>
+	<ul id="list"></ul>
+	<script>
+		const content = document.querySelector('#content');
+		const id = Math.floor(Math.random()*3);
+		let evtSource = new EventSource('/sse?id='+id);
+
+		evtSource.addEventListener('error', function evtSourceErrorHandler(err) {
+			switch(event.target.readyState){
+				case EventSource.CONNECTING:
+					console.log('Reconnecting...');
+					return;
+				case EventSource.CLOSED:
+					console.log('Reinitializing...');
+					location.reload();
+					return;
+			}
+		});
+
+		evtSource.addEventListener('open', (e) => {
+			console.log('The connection has been established.');
+		});
+
+		evtSource.addEventListener('custom', event => {
+			const eventList = document.getElementById('list');
+			const newElement = document.createElement('li');
+		  
+			newElement.textContent = `${event.type}: ${event.data}`;
+			eventList.appendChild(newElement);
+		});
+	</script>
+  </body>
+</html>
